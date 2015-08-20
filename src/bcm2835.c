@@ -507,6 +507,36 @@ void bcm2835_gpio_write_mask(uint32_t value, uint32_t mask)
     bcm2835_gpio_clr_multi((~value) & mask);
 }
 
+/* Configure the first 32 GPIO pins specified in the mask as output */
+void bcm2835_gpio_set_output_mask(uint32_t mask){
+	const uint32_t all_output = BCM2835_GPIO_FSEL_OUTP << 0  | BCM2835_GPIO_FSEL_OUTP << 3 |
+								BCM2835_GPIO_FSEL_OUTP << 6  | BCM2835_GPIO_FSEL_OUTP << 9  |
+								BCM2835_GPIO_FSEL_OUTP << 12 | BCM2835_GPIO_FSEL_OUTP << 15 |
+								BCM2835_GPIO_FSEL_OUTP << 18 | BCM2835_GPIO_FSEL_OUTP << 21 |
+								BCM2835_GPIO_FSEL_OUTP << 24 | BCM2835_GPIO_FSEL_OUTP << 27;
+	#define MASK_COUNT 	(32 + 9/ 10)
+	uint32_t masks[ MASK_COUNT ] = { 0 };
+    volatile uint32_t* paddr = bcm2835_gpio + BCM2835_GPFSEL0/4;
+
+
+	int pin,i;
+
+	for(pin=0; pin<= 31 && mask; pin++){
+		if (mask&1){
+			masks[pin/10] |= 0x7 << ((pin % 10) * 3);
+		}
+
+		mask >>= 1;
+	}
+
+    /* Function selects are 10 pins per 32 bit word, 3 bits per pin */
+
+    for(i=0 ; i < MASK_COUNT ; i++)
+    	bcm2835_peri_set_bits(paddr++, all_output, masks[i] );
+
+
+}
+
 /* Set the pullup/down resistor for a pin
 //
 // The GPIO Pull-up/down Clock Registers control the actuation of internal pull-downs on

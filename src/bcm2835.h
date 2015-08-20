@@ -1267,6 +1267,14 @@ extern "C" {
     */
     extern void bcm2835_gpio_write_mask(uint32_t value, uint32_t mask);
 
+
+    /*! Configure the first 32 GPIO pins specified in the mask as output.
+        This doesn't write the value, only configure the pins as an output
+      \param[in] mask Mask of pins to affect. Use eg: (1 << RPI_GPIO_P1_03) | (1 << RPI_GPIO_P1_05)
+    */
+
+    extern void bcm2835_gpio_set_output_mask(uint32_t mask);
+
     /*! Sets the Pull-up/down mode for the specified pin. This is more convenient than
       clocking the mode in with bcm2835_gpio_pud() and bcm2835_gpio_pudclk().
       \param[in] pin GPIO number, or one of RPI_GPIO_P1_* from \ref RPiGPIOPin.
